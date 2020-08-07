@@ -45,7 +45,7 @@ public class DBController : MonoBehaviour
     {
         FirebaseApp.Create(new AppOptions()
         {
-            Credential = GoogleCredential.FromFile("C:\\Users\\FiercePC\\Downloads\\urvos-2020-firebase-adminsdk-9vnr8-1df8cfd048.json")
+            //Credential = GoogleCredential.FromFile("C:\\Users\\FiercePC\\Downloads\\urvos-2020-firebase-adminsdk-9vnr8-1df8cfd048.json")
         });
     }
 
