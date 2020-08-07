@@ -1,0 +1,18 @@
+{
+  "Save": [
+    {
+      "Id": 0,
+      "Path": "Prefabs/page1",
+      "Items": [
+        {
+          "Name": "ahmet",
+          "Color": "1,1,1"
+        },
+        {
+          "Name": "mehmet",
+          "Color": "1,0,0"
+        },
+      ]
+    }
+  ]
+}
