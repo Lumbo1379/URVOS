@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Threading.Tasks;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
@@ -12,12 +13,14 @@ using Random = UnityEngine.Random;
 
 public class DBController : MonoBehaviour
 {
-    public delegate void PostUserCallback();
+    public delegate void PutUserCallback();
     public delegate void GetUserCallback(User user);
+    public delegate void PutQuestionCallback();
 
     [SerializeField] private TMP_InputField _emailInputField;
     [SerializeField] private TMP_InputField _passwordInputField;
     [SerializeField] private GameObject _playButton;
+    [SerializeField] private GameObject _questionCreator;
 
     private const string DbPath = "https://urvos-2020.firebaseio.com/";
     private const string AuthKey = "AIzaSyByIvr_ewxC6xxxDeaTWcIC3GBoWBNqY-c";
@@ -26,7 +29,6 @@ public class DBController : MonoBehaviour
     private static string _idToken;
     private static string _localId;
 
-#if UNITY_EDITOR
     private void Start()
     {
         InitializeSDK();
@@ -39,14 +41,26 @@ public class DBController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F3))
             CheckIfAdmin();
+
+        if (Input.GetKeyDown(KeyCode.F4))
+            AddQuestion();
     }
 
     private void InitializeSDK()
     {
-        FirebaseApp.Create(new AppOptions()
+        try
         {
-            //Credential = GoogleCredential.FromFile("C:\\Users\\FiercePC\\Downloads\\urvos-2020-firebase-adminsdk-9vnr8-1df8cfd048.json")
-        });
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential =
+                    GoogleCredential.FromFile(
+                        "C:\\Users\\FiercePC\\Downloads\\urvos-2020-firebase-adminsdk-9vnr8-1df8cfd048.json")
+            });
+        }
+        catch
+        {
+            Debug.Log("That file does not exist!");
+        }
     }
 
     private async void MakeUserAdmin()
@@ -59,10 +73,10 @@ public class DBController : MonoBehaviour
         await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(_localId, claims);
     }
 
-    private async void CheckClaims()
+    private async Task<bool> CheckClaim(string claim)
     {
         UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(_localId);
-        Debug.Log(user.CustomClaims["admin"]);
+        return user.CustomClaims.ContainsKey(claim);
     }
 
     private async void CheckIfAdmin()
@@ -80,7 +94,29 @@ public class DBController : MonoBehaviour
         else
             Debug.Log("You don't have that claim assigned!");
     }
-#endif
+
+    private static void PutQuestion(QuestionDialogue question, string title, string idToken, PutQuestionCallback callback)
+    {
+        RestClient.Put<QuestionDialogue>($"{DbPath}questions/{title}.json?auth={idToken}", question).Then(response => { callback(); }).Catch(Debug.Log);
+    }
+
+    public static void AddQuestion(QuestionDialogue question, string title)
+    {
+        PutQuestion(question, title, _idToken, () =>
+        {
+            Debug.Log($"Question: {title} added successfully");
+        });
+    }
+
+    private async void AddQuestion()
+    {
+        bool isAdmin = await CheckClaim("admin");
+
+        if (isAdmin)
+            _questionCreator.SetActive(true);
+        else
+            Debug.Log("You are not authorized to add questions!");
+    }
 
     public static void OnSubmit(string date, string gameMode, string age, string gender, int noOfRounds, int playerCatchCount, int valence, int arousal, int dominance)
     {
@@ -119,7 +155,7 @@ public class DBController : MonoBehaviour
         _passwordInputField.text = "";
     }
 
-    private static void PutUser(User user, string userId, string idToken, PostUserCallback callback)
+    private static void PutUser(User user, string userId, string idToken, PutQuestionCallback callback)
     {
         RestClient.Put<User>($"{DbPath}users/{userId}.json?auth={idToken}", user).Then(response => { callback(); }).Catch(Debug.Log);
     }
@@ -162,4 +198,11 @@ public class SignResponse
 {
     public string localId;
     public string idToken;
+}
+
+[Serializable]
+public class QuestionDialogue
+{
+    public string Question;
+    public bool IsYesOrNo;
 }
