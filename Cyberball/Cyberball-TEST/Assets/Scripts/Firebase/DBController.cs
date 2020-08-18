@@ -204,5 +204,8 @@ public class SignResponse
 public class QuestionDialogue
 {
     public string Question;
-    public bool IsYesOrNo;
+    public int QuestionType;
+    public int LowerScale;
+    public int UpperScale;
+    public int AskFrequency;
 }
