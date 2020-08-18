@@ -54,6 +54,7 @@ public class ButtonScript : MonoBehaviour {
 
     public void StartB()
     {
+        DBController.RetrieveQuestions();
         SceneManager.LoadScene("Loading");
     }
 

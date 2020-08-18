@@ -1,10 +1,20 @@
 fileFormatVersion: 2
 guid: e91ea5191e24fb241a2dd0ce538291ee
-timeCreated: 1566814721
-licenseType: Free
 MonoImporter:
+  externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - BallHandL: {instanceID: 0}
+  - BallHandR: {instanceID: 0}
+  - Ball: {instanceID: 0}
+  - HandL: {instanceID: 0}
+  - HandR: {instanceID: 0}
+  - BR: {instanceID: 0}
+  - BL: {instanceID: 0}
+  - GL: {instanceID: 0}
+  - GR: {instanceID: 0}
+  - _questionResponder: {fileID: 29808559743519578, guid: eda7c6ec0b8feb1439d824330de506d0,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

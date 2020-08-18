@@ -5,6 +5,7 @@ using System.Data.SqlTypes;
 using System.Threading.Tasks;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
+using FullSerializer;
 using Google.Apis.Auth.OAuth2;
 using Proyecto26;
 using TMPro;
@@ -16,6 +17,7 @@ public class DBController : MonoBehaviour
     public delegate void PutUserCallback();
     public delegate void GetUserCallback(User user);
     public delegate void PutQuestionCallback();
+    public delegate void GetQuestionsCallback(Dictionary<string, QuestionDialogue> questions);
 
     [SerializeField] private TMP_InputField _emailInputField;
     [SerializeField] private TMP_InputField _passwordInputField;
@@ -29,8 +31,11 @@ public class DBController : MonoBehaviour
     private static string _idToken;
     private static string _localId;
 
+    private static fsSerializer _serializer = new fsSerializer();
+
     private void Start()
     {
+        QuestionResponderController.Questions = new List<QuestionDialogue>();
         InitializeSDK();
     }
 
@@ -98,6 +103,31 @@ public class DBController : MonoBehaviour
     private static void PutQuestion(QuestionDialogue question, string title, string idToken, PutQuestionCallback callback)
     {
         RestClient.Put<QuestionDialogue>($"{DbPath}questions/{title}.json?auth={idToken}", question).Then(response => { callback(); }).Catch(Debug.Log);
+    }
+
+    private static void GetQuestions(GetQuestionsCallback callback)
+    {
+        RestClient.Get($"{DbPath}questions.json?auth={_idToken}").Then(response =>
+        {
+            var responseJson = response.Text;
+
+            var data = fsJsonParser.Parse(responseJson);
+            object deserialized = null;
+            _serializer.TryDeserialize(data, typeof(Dictionary<string, QuestionDialogue>), ref deserialized);
+
+            var questions = deserialized as Dictionary<string, QuestionDialogue>;
+            callback(questions);
+        }).Catch(Debug.Log);
+    }
+
+    public static void RetrieveQuestions()
+    {
+        GetQuestions(questions =>
+        {
+            foreach (var question in questions) QuestionResponderController.Questions.Add(question.Value);
+
+            Debug.Log($"{questions.Count} questions retrieved successfully!");
+        });
     }
 
     public static void AddQuestion(QuestionDialogue question, string title)
