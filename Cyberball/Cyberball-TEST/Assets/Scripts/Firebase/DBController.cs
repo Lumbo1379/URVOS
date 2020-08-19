@@ -32,9 +32,11 @@ public class DBController : MonoBehaviour
     private static string _localId;
 
     private static fsSerializer _serializer = new fsSerializer();
+    private static List<string> _questionResponses;
 
     private void Start()
     {
+        _questionResponses = new List<string>();
         QuestionResponderController.Questions = new List<QuestionDialogue>();
         InitializeSDK();
     }
@@ -160,7 +162,8 @@ public class DBController : MonoBehaviour
             PlayerCatchCount = playerCatchCount,
             Valence = valence,
             Arousal = arousal,
-            Dominance = dominance
+            Dominance = dominance,
+            QuestionResponses = _questionResponses.ToArray()
         };
 
         PutUser(user, _localId, _idToken, () =>
@@ -169,12 +172,9 @@ public class DBController : MonoBehaviour
         });
     }
 
-    public static void OnGetUserScore()
+    public static void SubmitQuestionResponse(string question, string qResponse)
     {
-        GetUser(_name, _idToken, user =>
-        {
-
-        });
+        _questionResponses.Add(question + ": " + qResponse);
     }
 
     public void OnSignIn()
@@ -221,6 +221,7 @@ public class User
     public int Valence;
     public int Arousal;
     public int Dominance;
+    public string[] QuestionResponses;
 }
 
 [Serializable]

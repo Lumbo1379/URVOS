@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class QuestionResponderController : MonoBehaviour
 {
@@ -13,44 +14,72 @@ public class QuestionResponderController : MonoBehaviour
     [SerializeField] private GameObject _middleScaleText;
     [SerializeField] private TMP_Text _title;
     [SerializeField] [Range(0, 100)] private int _distanceBetweenScalePickers;
+    [SerializeField] private Color _scaleSelectColour;
+    [SerializeField] private GameObject _submitButton;
+
+    private GameObject _previousSelectedScale;
+    private List<GameObject> _scaleButtons;
+    private int _lowerScale;
+    private int _questionIndex;
 
     public void AskDetailedQuestion(int index)
     {
+        SetQuestionIndex(index);
         UpdateTitle(index);
         _detailedInputField.SetActive(true);
     }
 
     public void AskYesOrNoQuestion(int index)
     {
+        SetQuestionIndex(index);
         UpdateTitle(index);
         _yesOrNoDropdown.SetActive(true);
     }
 
     public void AskScaleQuestion(int index)
     {
+        SetQuestionIndex(index);
+        _submitButton.SetActive(false);
+        _scaleButtons = new List<GameObject>();
+
         UpdateTitle(index);
 
         int upperScale = Questions[index].UpperScale;
         int lowerScale = Questions[index].LowerScale;
         int middle = (upperScale + lowerScale) / 2;
 
+        _lowerScale = lowerScale;
+
         _middleScaleText.transform.GetChild(0).GetComponent<TMP_Text>().text = middle.ToString();
+        _middleScaleText.transform.GetComponent<Button>().onClick.AddListener(delegate { OnScaleClick(middle); });
         _middleScaleText.SetActive(true);
 
         for (int i = lowerScale; i < middle; i++)
         {
-            var nextScale = Instantiate(_middleScaleText, transform);
-            nextScale.transform.position -= new Vector3((middle - i) * _distanceBetweenScalePickers, 0, 0);
+            var nextScale = Instantiate(_middleScaleText);
+            nextScale.GetComponent<RectTransform>().position -= new Vector3((middle - i) * _distanceBetweenScalePickers, 0, 0);
             nextScale.transform.GetChild(0).GetComponent<TMP_Text>().text = i.ToString();
+            nextScale.transform.SetParent(transform, false);
+            var i1 = i;
+            nextScale.transform.GetComponent<Button>().onClick.AddListener(delegate { OnScaleClick(i1); });
             nextScale.SetActive(true);
+
+            _scaleButtons.Add(nextScale);
         }
 
-        for (int i = upperScale; i > middle; i--)
+        _scaleButtons.Add(_middleScaleText);
+
+        for (int i = middle + 1; i <= upperScale; i++)
         {
-            var nextScale = Instantiate(_middleScaleText, transform);
-            nextScale.transform.position += new Vector3((i - middle) * _distanceBetweenScalePickers, 0, 0);
+            var nextScale = Instantiate(_middleScaleText);
+            nextScale.GetComponent<RectTransform>().position += new Vector3((i - middle) * _distanceBetweenScalePickers, 0, 0);
             nextScale.transform.GetChild(0).GetComponent<TMP_Text>().text = i.ToString();
+            nextScale.transform.SetParent(transform, false);
+            var i1 = i;
+            nextScale.transform.GetComponent<Button>().onClick.AddListener(delegate { OnScaleClick(i1); });
             nextScale.SetActive(true);
+
+            _scaleButtons.Add(nextScale);
         }
     }
 
@@ -61,11 +90,39 @@ public class QuestionResponderController : MonoBehaviour
         if (QuestionsLeftToAsk == 0)
             Time.timeScale = 1;
 
+        int questionType = Questions[_questionIndex].QuestionType;
+        string response;
+
+        if (questionType == QuestionConstants.DROPDOWN_DETAILED_RESPONSE)
+            response = _detailedInputField.GetComponent<TMP_InputField>().text;
+        else if (questionType == QuestionConstants.DROPDOWN_SCALE_RESPONSE)
+            response = _previousSelectedScale.transform.GetChild(0).GetComponent<TMP_Text>().text;
+        else
+            response = _yesOrNoDropdown.GetComponent<TMP_Dropdown>().value == 0 ? "Yes" : "No";
+
+        DBController.SubmitQuestionResponse(Questions[_questionIndex].Question, response);
+
         Destroy(gameObject);
     }
 
     private void UpdateTitle(int index)
     {
         _title.text = Questions[index].Question;
+    }
+
+    public void OnScaleClick(int value)
+    {
+        if (_previousSelectedScale != null)
+            _previousSelectedScale.GetComponent<Image>().color = Color.white;
+        else
+            _submitButton.SetActive(true);
+
+        _previousSelectedScale = _scaleButtons[value - _lowerScale];
+        _previousSelectedScale.GetComponent<Image>().color = _scaleSelectColour;
+    }
+
+    private void SetQuestionIndex(int index)
+    {
+        _questionIndex = index;
     }
 }
