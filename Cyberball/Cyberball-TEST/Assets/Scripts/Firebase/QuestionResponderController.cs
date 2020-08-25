@@ -15,6 +15,10 @@ public class QuestionResponderController : MonoBehaviour
     [SerializeField] private TMP_Text _title;
     [SerializeField] [Range(0, 100)] private int _distanceBetweenScalePickers;
     [SerializeField] private Color _scaleSelectColour;
+    [SerializeField] private GameObject[] _vSam;
+    [SerializeField] private GameObject[] _aSam;
+    [SerializeField] private GameObject[] _dSam;
+    [SerializeField] private Vector3 _samOffset;
     [SerializeField] private GameObject _submitButton;
 
     private GameObject _previousSelectedScale;
@@ -38,21 +42,44 @@ public class QuestionResponderController : MonoBehaviour
 
     public void AskScaleQuestion(int index)
     {
+        int upperScale = Questions[index].UpperScale;
+        int lowerScale = Questions[index].LowerScale;
+
+        AskScaleQuestion(index, upperScale, lowerScale, null);
+    }
+
+    public void AskSamQuestion(int type, int index)
+    {
+        switch (type)
+        {
+            case QuestionConstants.DROPDOWN_VALENCE_RESPONSE:
+                AskScaleQuestion(index, 1, 9, _vSam);
+                break;
+            case QuestionConstants.DROPDOWN_AROUSAL_RESPONSE:
+                AskScaleQuestion(index, 1, 9, _aSam);
+                break;
+            default:
+                AskScaleQuestion(index, 1, 9, _dSam);
+                break;
+        }
+    }
+
+    private void AskScaleQuestion(int index, int lowerScale, int upperScale, GameObject[] sams)
+    {
         SetQuestionIndex(index);
         _submitButton.SetActive(false);
         _scaleButtons = new List<GameObject>();
 
         UpdateTitle(index);
 
-        int upperScale = Questions[index].UpperScale;
-        int lowerScale = Questions[index].LowerScale;
         int middle = (upperScale + lowerScale) / 2;
-
         _lowerScale = lowerScale;
 
         _middleScaleText.transform.GetChild(0).GetComponent<TMP_Text>().text = middle.ToString();
         _middleScaleText.transform.GetComponent<Button>().onClick.AddListener(delegate { OnScaleClick(middle); });
         _middleScaleText.SetActive(true);
+
+        int samIndex = 0;
 
         for (int i = lowerScale; i < middle; i++)
         {
@@ -64,10 +91,18 @@ public class QuestionResponderController : MonoBehaviour
             nextScale.transform.GetComponent<Button>().onClick.AddListener(delegate { OnScaleClick(i1); });
             nextScale.SetActive(true);
 
+            if (sams != null && i % 2 == 1)
+            {
+                AddSam(sams, nextScale.transform, samIndex);
+                
+                samIndex++;
+            }
+
             _scaleButtons.Add(nextScale);
         }
 
         _scaleButtons.Add(_middleScaleText);
+        samIndex++;
 
         for (int i = middle + 1; i <= upperScale; i++)
         {
@@ -79,8 +114,25 @@ public class QuestionResponderController : MonoBehaviour
             nextScale.transform.GetComponent<Button>().onClick.AddListener(delegate { OnScaleClick(i1); });
             nextScale.SetActive(true);
 
+            if (sams != null && i % 2 == 1)
+            {
+                AddSam(sams, nextScale.transform, samIndex);
+
+                samIndex++;
+            }
+
             _scaleButtons.Add(nextScale);
         }
+
+        if (sams != null)
+            AddSam(sams, _middleScaleText.transform, 3);
+    }
+
+    private void AddSam(GameObject[] sams, Transform parent, int index)
+    {
+        var samPic = Instantiate(sams[index]);
+        samPic.GetComponent<RectTransform>().position += _samOffset;
+        samPic.transform.SetParent(parent, false);
     }
 
     public void OnSubmit()

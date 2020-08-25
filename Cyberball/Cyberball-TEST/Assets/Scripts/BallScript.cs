@@ -160,12 +160,21 @@ public class BallScript : MonoBehaviour {
                 var responder = Instantiate(_questionResponder, _canvas);
                 var questionController = responder.GetComponent<QuestionResponderController>();
 
-                if (question.QuestionType == QuestionConstants.DROPDOWN_DETAILED_RESPONSE)
-                    questionController.AskDetailedQuestion(i);
-                else if (question.QuestionType == QuestionConstants.DROPDOWN_YES_OR_NO)
-                    questionController.AskYesOrNoQuestion(i);
-                else
-                    questionController.AskScaleQuestion(i);
+                switch (question.QuestionType)
+                {
+                    case QuestionConstants.DROPDOWN_DETAILED_RESPONSE:
+                        questionController.AskDetailedQuestion(i);
+                        break;
+                    case QuestionConstants.DROPDOWN_YES_OR_NO:
+                        questionController.AskYesOrNoQuestion(i);
+                        break;
+                    case QuestionConstants.DROPDOWN_SCALE_RESPONSE:
+                        questionController.AskScaleQuestion(i);
+                        break;
+                    default:
+                        questionController.AskSamQuestion(question.QuestionType, i);
+                        break;
+                }
 
                 responder.SetActive(true);
 
@@ -181,7 +190,7 @@ public class BallScript : MonoBehaviour {
         if (_logThrowCount)
         {
             _throwNumber++;
-            AskQuestions();
+            Invoke("AskQuestions", 0.5f);
         }
     }
 }
