@@ -16,15 +16,17 @@ public class BallScript : MonoBehaviour {
 
     [SerializeField] private GameObject _questionResponder;
     [SerializeField] private Transform _canvas;
+    [SerializeField] private bool _logThrowCount;
 
     JSONData set;
 
     static Animator anim;
 
     private Sharer _sharer;
+    private int _throwNumber;
 
     // Use this for initialization
-    void Start ()
+    void Awake ()
     {
         string path = (Application.streamingAssetsPath + "/data.json");
         set = new JSONData(path);
@@ -97,7 +99,6 @@ public class BallScript : MonoBehaviour {
 
     public void playercatch()
     {
-        Invoke("AskQuestions", 0.5f);
         Hand HandScript = (Hand)HandL.GetComponent("Hand");
         HandScript.CatchBall();
         HandRight HandRight = (HandRight)HandR.GetComponent("HandRight");
@@ -106,7 +107,6 @@ public class BallScript : MonoBehaviour {
 
     public void playercatchL()
     {
-        Invoke("AskQuestions", 0.5f);
         Hand HandScript = (Hand)HandL.GetComponent("Hand");
         HandScript.CatchBallLeft();
         HandRight HandRight = (HandRight)HandR.GetComponent("HandRight");
@@ -115,7 +115,6 @@ public class BallScript : MonoBehaviour {
 
     public void rightplayercatch()
     {
-        Invoke("AskQuestions", 0.5f);
         Right RightScript = (Right)BR.GetComponent("Right");
         RightScript.RightPlayerCatch();
         Right RightScriptP = (Right)GR.GetComponent("Right");
@@ -124,7 +123,6 @@ public class BallScript : MonoBehaviour {
 
     public void leftplayercatch()
     {
-        Invoke("AskQuestions", 0.5f);
         Left LeftScript = (Left)BL.GetComponent("Left");
         LeftScript.LeftPlayerCatch();
         Left LeftScriptP = (Left)GL.GetComponent("Left");
@@ -133,7 +131,6 @@ public class BallScript : MonoBehaviour {
 
     public void leftcatch()
     {
-        Invoke("AskQuestions", 0.5f);
         Left LeftScript = (Left)BL.GetComponent("Left");
         LeftScript.LeftCatch();
         Left LeftScriptP = (Left)GL.GetComponent("Left");
@@ -142,7 +139,6 @@ public class BallScript : MonoBehaviour {
 
     public void rightcatch()
     {
-        Invoke("AskQuestions", 0.5f);
         Right RightScript = (Right)BR.GetComponent("Right");
         RightScript.RightCatch();
         Right RightScriptP = (Right)GR.GetComponent("Right");
@@ -157,8 +153,8 @@ public class BallScript : MonoBehaviour {
         {
             var question = QuestionResponderController.Questions[i];
 
-            if ((question.AskFrequency == QuestionConstants.FREQUENCY_FIRST_THROW_ONLY && _sharer.throws == 1) ||
-                (question.AskFrequency == QuestionConstants.FREQUENCY_EVERY_OTHER_THROW && _sharer.throws % 2 == 1) ||
+            if ((question.AskFrequency == QuestionConstants.FREQUENCY_FIRST_THROW_ONLY && _throwNumber == 1) ||
+                (question.AskFrequency == QuestionConstants.FREQUENCY_EVERY_OTHER_THROW && _throwNumber % 2 == 1) ||
                 (question.AskFrequency == QuestionConstants.FREQUENCY_EVERY_THROW))
             {
                 var responder = Instantiate(_questionResponder, _canvas);
@@ -176,6 +172,16 @@ public class BallScript : MonoBehaviour {
                 QuestionResponderController.QuestionsLeftToAsk++;
             }
             
+        }
+    }
+
+
+    private void OnDisable()
+    {
+        if (_logThrowCount)
+        {
+            _throwNumber++;
+            AskQuestions();
         }
     }
 }
