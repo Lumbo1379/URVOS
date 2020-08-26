@@ -15,6 +15,8 @@ public class JSONWriter : MonoBehaviour {
     public Dropdown AgeDrop;
     public Dropdown GenderDrop;
     public InputField RoundNum;
+
+    public JSONData data;
     
     private int DropdownValA, DropdownValG, DropdownValGM, rand;
 
@@ -42,7 +44,7 @@ public class JSONWriter : MonoBehaviour {
 
         if (File.Exists(path))
         {
-            JSONData data = new JSONData(path);
+            //JSONData data = new JSONData(path);
             //GMD.value = GMD.options.FindIndex(option = > options.text == data.GameMode);
             if (data.GameMode.StartsWith("Random"))
                 data.GameMode = "Random";

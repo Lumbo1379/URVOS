@@ -16,8 +16,8 @@ public class loadingtext : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        string path = (Application.streamingAssetsPath + "/data.json");
-        set = new JSONData(path);
+        string dataPath = string.Format("{0}/saveFile.json", Application.persistentDataPath);
+        set = new JSONData(dataPath);
 
         rectComponent = GetComponent<RectTransform>();
         imageComp = rectComponent.GetComponent<Image>();

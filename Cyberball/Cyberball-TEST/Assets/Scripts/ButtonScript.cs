@@ -11,8 +11,13 @@ public class ButtonScript : MonoBehaviour {
     public GameObject Ball;
     public JSONData set;
     public GameObject menu;
+
+    string dataPath;
+
     void Start()
     {
+        dataPath = string.Format("{0}/saveFile.json", Application.persistentDataPath);
+
         if (SceneManager.GetActiveScene().name == "Thank You")
         {
             StartCoroutine(Example());
@@ -63,7 +68,7 @@ public class ButtonScript : MonoBehaviour {
         popup.SetActive(false);
         SceneManager.LoadScene("Thank You");
         string path = "data.json";
-        set = new JSONData(path);
+        set = new JSONData(dataPath);
         Sharer share = Ball.GetComponent<Sharer>();
         new DataSaver(set.GameMode, set.Age, set.Gender, set.Rounds.ToString(), share.counter.ToString(), VALENCE, AROUSAL, DOMINANCE);
     }

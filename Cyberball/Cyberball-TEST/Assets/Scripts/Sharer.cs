@@ -17,8 +17,8 @@ public class Sharer : MonoBehaviour {
 
     public void Start()
     {
-        string path = (Application.streamingAssetsPath + "/data.json");
-        set = new JSONData(path);
+        string dataPath = string.Format("{0}/saveFile.json", Application.persistentDataPath); 
+        set = new JSONData(dataPath);
 
         if (set.Gender == "Only Girls")
         {

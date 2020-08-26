@@ -15,8 +15,8 @@ public class Hand : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        string path = (Application.streamingAssetsPath + "/data.json");
-        set = new JSONData(path);
+        string dataPath = string.Format("{0}/saveFile.json", Application.persistentDataPath);
+        set = new JSONData(dataPath);
 
         anim = GetComponent<Animator>();
         PlayerBall.SetActive(false);
