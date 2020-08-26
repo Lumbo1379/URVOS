@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.SceneManagement;
+using System.Security.Cryptography;
 
 public class JSONWriter : MonoBehaviour {
 
@@ -15,12 +18,24 @@ public class JSONWriter : MonoBehaviour {
     
     private int DropdownValA, DropdownValG, DropdownValGM, rand;
 
+    [DllImport("__Internal")]
+    private static extern void SyncFiles();
+
+    [DllImport("__Internal")]
+    private static extern void WindowAlert(string message);
+
     string filename = "data.json";
     string path;
-   
+
+    FileStream fileStream;
+    string dataPath;
+
     // Use this for initialization
     void Start()
     {
+        dataPath = string.Format("{0}/saveFile.json", Application.persistentDataPath);
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
+
         path = Application.streamingAssetsPath + "/" + filename;
       //  Debug.Log(path);
         //C:\Users\Student\AppData\LocalLow\UROS\JSON_TEST
@@ -42,6 +57,8 @@ public class JSONWriter : MonoBehaviour {
 
     public void SaveData()
     {
+        SceneManager.LoadScene("Play");
+
         SaveObject saveObject = new SaveObject
         {
            // Player = PlayerName.text.ToString(),
@@ -52,11 +69,21 @@ public class JSONWriter : MonoBehaviour {
         };
 
         string content = JsonUtility.ToJson(saveObject, true);
-        System.IO.File.WriteAllText(path, content);
+        Debug.Log(content);
+        Debug.Log(dataPath);
+        File.WriteAllText(dataPath, content);
+        fileStream = File.Open(dataPath, FileMode.Open);
 
-        //Debug.Log("Saved!");
+        if(Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+            SyncFiles();
+        }
 
-        SceneManager.LoadScene("Play");
+        fileStream.Close();
+
+        Debug.Log("Saved!");
+
+        
 
     }
     private class SaveObject
