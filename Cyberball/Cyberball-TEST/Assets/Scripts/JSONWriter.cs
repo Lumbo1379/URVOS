@@ -42,7 +42,7 @@ public class JSONWriter : MonoBehaviour {
       //  Debug.Log(path);
         //C:\Users\Student\AppData\LocalLow\UROS\JSON_TEST
 
-        if (File.Exists(path))
+        if (File.Exists(dataPath))
         {
             //JSONData data = new JSONData(path);
             //GMD.value = GMD.options.FindIndex(option = > options.text == data.GameMode);
