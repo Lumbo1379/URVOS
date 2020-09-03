@@ -147,8 +147,6 @@ public class BallScript : MonoBehaviour {
 
     private void AskQuestions()
     {
-        Time.timeScale = 0;
-
         for (int i = 0; i < QuestionResponderController.Questions.Count; i++)
         {
             var question = QuestionResponderController.Questions[i];
@@ -157,6 +155,7 @@ public class BallScript : MonoBehaviour {
                 (question.AskFrequency == QuestionConstants.FREQUENCY_EVERY_OTHER_THROW && _throwNumber % 2 == 1) ||
                 (question.AskFrequency == QuestionConstants.FREQUENCY_EVERY_THROW))
             {
+                Time.timeScale = 0;
                 var responder = Instantiate(_questionResponder, _canvas);
                 var questionController = responder.GetComponent<QuestionResponderController>();
 
