@@ -147,7 +147,7 @@ public class QuestionResponderController : MonoBehaviour
 
         if (questionType == QuestionConstants.DROPDOWN_DETAILED_RESPONSE)
             response = _detailedInputField.GetComponent<TMP_InputField>().text;
-        else if (questionType == QuestionConstants.DROPDOWN_SCALE_RESPONSE)
+        else if (questionType == QuestionConstants.DROPDOWN_SCALE_RESPONSE || questionType == QuestionConstants.DROPDOWN_VALENCE_RESPONSE || questionType == QuestionConstants.DROPDOWN_AROUSAL_RESPONSE || questionType == QuestionConstants.DROPDOWN_DOMINANCE_RESPONSE)
             response = _previousSelectedScale.transform.GetChild(0).GetComponent<TMP_Text>().text;
         else
             response = _yesOrNoDropdown.GetComponent<TMP_Dropdown>().value == 0 ? "Yes" : "No";
