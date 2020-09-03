@@ -45,7 +45,7 @@ public class QuestionResponderController : MonoBehaviour
         int upperScale = Questions[index].UpperScale;
         int lowerScale = Questions[index].LowerScale;
 
-        AskScaleQuestion(index, upperScale, lowerScale, null);
+        AskScaleQuestion(index, lowerScale, upperScale, null);
     }
 
     public void AskSamQuestion(int type, int index)
